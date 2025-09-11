@@ -1,6 +1,6 @@
-# serverless_stripe
+# Serverless Stripe Checkout – Multi-Cloud Payments
 
-A serverless payment session endpoint for Stripe supporting both Azure Functions and AWS Lambda.
+A multi-cloud serverless solution for Stripe checkout sessions, featuring secure API key management, OpenTelemetry tracing, automated CI/CD, and unit testing. Supports Azure Functions and AWS Lambda for flexible, cloud-agnostic deployments.
 
 ## Project Intent
 This project demonstrates how to build cloud-agnostic serverless endpoints for Stripe checkout sessions, with secure API key management using cloud-native secrets services. It is designed for multi-cloud deployments and best practices in serverless payments.
