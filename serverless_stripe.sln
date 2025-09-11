@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StripeCheckoutFunction", "azure-function\StripeCheckoutFunction.csproj", "{865E5248-0D0E-4471-B110-A53FDC2CEC0C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A9CB23A1-D610-4578-A99A-2395E1960BBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit_test", "unit_test", "{1CF2A7DD-9FE5-45BA-9747-BBDDBFFF385D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StripeCheckoutFunction.Tests", "tests\unit_test\StripeCheckoutFunction.Tests\StripeCheckoutFunction.Tests.csproj", "{C527EDE5-AE63-4877-81FE-052996C82D28}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{865E5248-0D0E-4471-B110-A53FDC2CEC0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{865E5248-0D0E-4471-B110-A53FDC2CEC0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{865E5248-0D0E-4471-B110-A53FDC2CEC0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{865E5248-0D0E-4471-B110-A53FDC2CEC0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C527EDE5-AE63-4877-81FE-052996C82D28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C527EDE5-AE63-4877-81FE-052996C82D28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C527EDE5-AE63-4877-81FE-052996C82D28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C527EDE5-AE63-4877-81FE-052996C82D28}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1CF2A7DD-9FE5-45BA-9747-BBDDBFFF385D} = {A9CB23A1-D610-4578-A99A-2395E1960BBE}
+		{C527EDE5-AE63-4877-81FE-052996C82D28} = {1CF2A7DD-9FE5-45BA-9747-BBDDBFFF385D}
+	EndGlobalSection
+EndGlobal
