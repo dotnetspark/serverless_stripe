@@ -46,6 +46,40 @@ Add Federated Identity Credential (Portal)
 Add Federated Identity Credential (using Microsoft Graph)
 - Use the Microsoft Graph API to add the cred if you prefer automation. See Microsoft docs for the JSON schema and required permissions.
 
+Automation — get the App object id and add a federated credential (az / az rest)
+
+If you prefer to automate the federated credential creation, use the `az` CLI to obtain the App's object id (the `id` field in Azure AD) and then call Microsoft Graph via `az rest` to POST the credential. Do not commit or paste real secret values into the repository — use placeholders or environment variables instead.
+
+Example (replace placeholders and run from an account with appropriate Azure AD permissions):
+
+```bash
+# replace with your App (client) id
+CLIENT_ID="<YOUR_CLIENT_ID>"
+
+# get the App registration's object id
+APP_OBJECT_ID=$(az ad app show --id "$CLIENT_ID" --query id -o tsv)
+echo "App object id: $APP_OBJECT_ID"
+
+# create a federated credential scoped to the main branch
+az rest --method POST \
+  --uri "https://graph.microsoft.com/v1.0/applications/$APP_OBJECT_ID/federatedIdentityCredentials" \
+  --headers "Content-Type=application/json" \
+  --body '{
+    "name": "github-actions-main",
+    "issuer": "https://token.actions.githubusercontent.com",
+    "subject": "repo:<owner>/<repo>:ref:refs/heads/main",
+    "description": "Allow GitHub Actions from main branch",
+    "audiences": ["api://AzureADTokenExchange"]
+  }'
+
+# the command will return the created credential JSON on success
+```
+
+Notes:
+- The account running these commands needs rights to read and modify the App Registration (Azure AD application). If you see permission errors, run as a tenant administrator or use an account with the necessary Graph permissions.
+- Use the `subject` value that matches how you want to restrict tokens (branch, environment, or workflow). See GitHub docs for the `subject` format.
+- These commands are safe to keep in docs with placeholders; avoid inserting live IDs or secrets into the repository.
+
 Configure GitHub repository secrets
 - Store the following values as repo secrets (these are not secret except for subscription id if you prefer):
   - `AZURE_CLIENT_ID` — the App (client) ID from App registration
@@ -86,7 +120,19 @@ Troubleshooting
 - Check Azure AD sign-in logs and GitHub action logs for token exchange failures.
 
 ---
-If you want, I can:
-- Prepare the exact `az` and `gh` commands to add the federated credential for your existing app registration (`serverless-stripe`).
-- Update the repo workflow to use `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` (already done) and open a small PR.
-- Help you remove the service principal safely after confirming OIDC works.
+- A federated credential scoped to the `main` branch was added to the App Registration. The credential and app identifiers are redacted here — check the App Registration or Azure AD audit logs if you need the full details.
+
+- Repository secrets for `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID` should be set by a repo administrator. Do not publish these values in the repository; use the `gh` CLI or the GitHub UI to add them as Actions secrets.
+
+Commands to set the repository secrets locally (run from a machine or environment with `gh` authenticated and repo admin access):
+
+```bash
+gh secret set AZURE_CLIENT_ID --repo <owner>/<repo> --body "<YOUR_CLIENT_ID>"
+gh secret set AZURE_TENANT_ID --repo <owner>/<repo> --body "<YOUR_TENANT_ID>"
+gh secret set AZURE_SUBSCRIPTION_ID --repo <owner>/<repo> --body "<YOUR_SUBSCRIPTION_ID>"
+```
+
+Next steps
+
+- Push a commit to `main` (or wait for your next normal deployment) to trigger the workflow. The OIDC login step in the workflow should succeed for runs on `main` once the secrets are present and the federated credential matches the `subject` used by your workflow.
+- After verifying the workflow, consider revoking any older federated credentials scoped to feature branches and optionally removing the temporary service principal credentials you created earlier (only if they're no longer needed).
