@@ -3,7 +3,7 @@ using FluentAssertions;
 using StripeCheckoutFunction;
 using System.Collections.Generic;
 
-namespace StripeCheckoutFunction.Tests
+namespace ServerlessStripe.UnitTests
 {
     public class CreateCheckoutSessionRequestTests
     {

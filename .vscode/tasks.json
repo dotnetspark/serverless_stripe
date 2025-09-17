@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Refresh local.settings.json",
+      "type": "shell",
+      "command": "bash refresh-local-settings.sh",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Build with refresh",
+      "dependsOn": ["Refresh local.settings.json"],
+      "type": "shell",
+      "command": "bash dotnet build serverless_stripe.sln",
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+  ]
+}

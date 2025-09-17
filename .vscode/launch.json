@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Azure Function with Refresh",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build with refresh",
+      "program": "${workspaceFolder}/azure-function/bin/Debug/net8.0/StripeCheckoutFunction.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/azure-function",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+  },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+      "justMyCode": true
+  }
+  ]
+}

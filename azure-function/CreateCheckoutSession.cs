@@ -15,15 +15,15 @@ namespace StripeCheckoutFunction
 {
     public class CreateCheckoutSessionRequest
     {
-    public List<CartItem>? Items { get; set; }
-    public string? Currency { get; set; }
-    public string? SuccessUrl { get; set; }
-    public string? CancelUrl { get; set; }
+        public List<CartItem>? Items { get; set; }
+        public string? Currency { get; set; }
+        public string? SuccessUrl { get; set; }
+        public string? CancelUrl { get; set; }
     }
 
     public class CartItem
     {
-    public string? ProductName { get; set; }
+        public string? ProductName { get; set; }
         public long UnitAmount { get; set; } // in cents
         public int Quantity { get; set; }
     }
@@ -50,19 +50,32 @@ namespace StripeCheckoutFunction
                 return badResponse;
             }
 
-            // Retrieve Stripe API key from Azure Key Vault
-            var keyVaultUrl = Environment.GetEnvironmentVariable("KEY_VAULT_URL");
-            var secretName = Environment.GetEnvironmentVariable("STRIPE_SECRET_NAME");
-            if (string.IsNullOrEmpty(keyVaultUrl) || string.IsNullOrEmpty(secretName))
+            // Use environment variable for local/dev/test, Key Vault for production
+            string environment = Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") ?? "Development";
+            string? stripeApiKey = Environment.GetEnvironmentVariable("STRIPE_API_KEY");
+            if (string.IsNullOrEmpty(stripeApiKey))
             {
-                var badResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
-                await badResponse.WriteStringAsync("Missing Key Vault configuration.");
-                return badResponse;
+                if (environment.Equals("Production", StringComparison.OrdinalIgnoreCase))
+                {
+                    var keyVaultUrl = Environment.GetEnvironmentVariable("KEY_VAULT_URL");
+                    var secretName = Environment.GetEnvironmentVariable("STRIPE_SECRET_NAME");
+                    if (string.IsNullOrEmpty(keyVaultUrl) || string.IsNullOrEmpty(secretName))
+                    {
+                        var badResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                        await badResponse.WriteStringAsync("Missing Key Vault configuration and no local Stripe API key.");
+                        return badResponse;
+                    }
+                    var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+                    KeyVaultSecret secret = await client.GetSecretAsync(secretName);
+                    stripeApiKey = secret.Value;
+                }
+                else
+                {
+                    var badResponse = req.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                    await badResponse.WriteStringAsync("STRIPE_API_KEY environment variable is not set.");
+                    return badResponse;
+                }
             }
-            var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-            KeyVaultSecret secret = await client.GetSecretAsync(secretName);
-            var stripeApiKey = secret.Value;
-
             StripeConfiguration.ApiKey = stripeApiKey;
 
             var options = new SessionCreateOptions
