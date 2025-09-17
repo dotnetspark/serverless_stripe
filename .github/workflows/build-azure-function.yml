@@ -18,16 +18,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
       - name: Restore dependencies
         run: dotnet restore serverless_stripe.sln
+
       - name: Build
         run: dotnet build serverless_stripe.sln --configuration Release --no-restore
+
       - name: Test
         run: dotnet test tests/unit_test/UnitTests.csproj --configuration Release --no-build --verbosity normal
+
       - name: Azure Login (OIDC)
         if: >
           github.event_name == 'push' ||
@@ -37,6 +42,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Fetch Stripe API Key from Key Vault (explicit)
         if: >
           github.event_name == 'push' ||
@@ -50,3 +56,11 @@ jobs:
           echo "STRIPE_API_KEY=$secret" >> $GITHUB_ENV
         env:
           AZURE_CONFIG_DIR: ${{ runner.temp }}
+
+      - name: Integration Tests
+        if: >
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dotnetspark')
+        run: |
+          echo "Running integration tests with STRIPE_API_KEY set: ${STRIPE_API_KEY:+<redacted>}"
+          dotnet test tests/integration_tests/IntegrationTests.csproj --configuration Release --no-build --verbosity normal
