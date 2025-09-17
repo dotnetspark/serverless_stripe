@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -45,8 +45,10 @@ jobs:
 
       - name: Fetch Stripe API Key from Key Vault (explicit)
         if: >
+          success() && (
           github.event_name == 'push' ||
           (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dotnetspark')
+          )
         run: |
           secret=$(az keyvault secret show --vault-name "${{ secrets.AZURE_KEYVAULT_NAME }}" --name "apiKey-Stripe" --query value -o tsv)
           if [ -z "$secret" ]; then
@@ -59,8 +61,10 @@ jobs:
 
       - name: Integration Tests
         if: >
+          success() && (
           github.event_name == 'push' ||
           (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dotnetspark')
+          )
         run: |
           echo "Running integration tests with STRIPE_API_KEY set: ${STRIPE_API_KEY:+<redacted>}"
           dotnet test tests/integration_tests/IntegrationTests.csproj --configuration Release --no-build --verbosity normal
