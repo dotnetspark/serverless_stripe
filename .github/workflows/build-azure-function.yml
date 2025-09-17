@@ -24,3 +24,15 @@ jobs:
         run: dotnet build serverless_stripe.sln --configuration Release --no-restore
       - name: Test
         run: dotnet test tests/unit_test/StripeCheckoutFunction.Tests/StripeCheckoutFunction.Tests.csproj --configuration Release --no-build --verbosity normal
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Fetch Stripe API Key from Key Vault
+        id: get-stripe-key
+        uses: azure/keyvault-secrets@v1
+        with:
+          keyvault: ${{ secrets.AZURE_KEYVAULT_NAME }}
+          secrets: STRIPE_API_KEY
+      - name: Set Stripe API Key as env
+        run: echo "STRIPE_API_KEY=${{ steps.get-stripe-key.outputs.STRIPE_API_KEY }}" >> $GITHUB_ENV

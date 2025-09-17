@@ -36,6 +36,27 @@ graph TD
 
 ## Local Development & Testing
 
+
+### Integration Tests
+
+- Integration tests require the environment variable `LOCAL_SETTINGS_PATH` to be set to the absolute path of your `local.settings.json` file.
+- **Run this script to export `LOCAL_SETTINGS_PATH` and run integration tests:**
+  ```bash
+  bash run-integration-tests.sh
+  ```
+- Or set the variable manually:
+  ```bash
+  export LOCAL_SETTINGS_PATH="$(pwd)/azure-function/local.settings.json"
+  dotnet test tests/integration_tests/IngretationTests.csproj
+  ```
+
+#### Steps for a new user
+1. Clone the repository
+2. Install .NET 8 SDK and dependencies
+3. Set up `azure-function/local.settings.json` with your secrets
+4. Run integration tests using the script above
+5. Check test output for `[DEBUG]` lines to verify environment setup
+
 ### Prerequisites
 - .NET 8 SDK
 - Azure CLI (for Key Vault access)

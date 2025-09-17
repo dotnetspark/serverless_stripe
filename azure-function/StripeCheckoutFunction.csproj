@@ -6,7 +6,17 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+
+  <!-- Exclude other function and shared project folders from the default SDK compile items
+       to avoid cross-project file inclusion which causes duplicate assembly attributes
+       and missing package references during solution builds. -->
+  <ItemGroup>
+    <Compile Remove="Shared\**\*.cs" />
+    <Compile Remove="NotificationFunction\**\*.cs" />
+    <Compile Remove="StripeWebhookFunction\**\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
