@@ -29,16 +29,24 @@ jobs:
       - name: Test
         run: dotnet test tests/unit_test/UnitTests.csproj --configuration Release --no-build --verbosity normal
       - name: Azure Login (OIDC)
+        if: >
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dotnetspark')
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Fetch Stripe API Key from Key Vault
-        id: get-stripe-key
-        uses: azure/get-keyvault-secrets@v1
-        with:
-          keyvault: ${{ secrets.AZURE_KEYVAULT_NAME }}
-          secrets: STRIPE_API_KEY
-      - name: Set Stripe API Key as env
-        run: echo "STRIPE_API_KEY=${{ steps.get-stripe-key.outputs.STRIPE_API_KEY }}" >> $GITHUB_ENV
+      - name: Fetch Stripe API Key from Key Vault (explicit)
+        if: >
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor == 'dotnetspark')
+        run: |
+          secret=$(az keyvault secret show --vault-name "${{ secrets.AZURE_KEYVAULT_NAME }}" --name "apiKey-Stripe" --query value -o tsv)
+          if [ -z "$secret" ]; then
+            echo "Could not find Key Vault secret 'apiKey-Stripe' in vault ${ { secrets.AZURE_KEYVAULT_NAME } }" >&2
+            exit 1
+          fi
+          echo "STRIPE_API_KEY=$secret" >> $GITHUB_ENV
+        env:
+          AZURE_CONFIG_DIR: ${{ runner.temp }}
