@@ -7,6 +7,16 @@ namespace ServerlessStripe.Shared
 {
     public class StripeWebhookService
     {
+        public delegate Stripe.Event ConstructEventDelegate(string json, string stripeSignature, string webhookSecret);
+
+        private readonly ConstructEventDelegate _constructEvent;
+
+        public StripeWebhookService() : this((json, sig, secret) => EventUtility.ConstructEvent(json, sig, secret)) { }
+
+        public StripeWebhookService(ConstructEventDelegate constructEvent)
+        {
+            _constructEvent = constructEvent ?? throw new ArgumentNullException(nameof(constructEvent));
+        }
         public class WebhookResult
         {
             public bool IsValid { get; set; }
@@ -25,7 +35,7 @@ namespace ServerlessStripe.Shared
             Event stripeEvent;
             try
             {
-                stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, webhookSecret);
+                stripeEvent = _constructEvent(json, stripeSignature, webhookSecret);
             }
             catch (Exception ex)
             {
