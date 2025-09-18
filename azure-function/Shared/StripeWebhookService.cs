@@ -39,7 +39,7 @@ namespace ServerlessStripe.Shared
             }
             catch (Exception ex)
             {
-                return new WebhookResult { IsValid = false, ErrorMessage = $"Invalid Stripe signature: {ex.Message}" };
+                return new WebhookResult { IsValid = false, ErrorMessage = $"Invalid Stripe signature: {ex}" };
             }
 
             if (stripeEvent.Type == "checkout.session.completed" || stripeEvent.Type == "payment_intent.succeeded")
